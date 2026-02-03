@@ -141,13 +141,13 @@ async def password_reset_complete(db: AsyncSession, user_data: PasswordResetComp
         PasswordResetTokenModel.user_id == user.id
     ))
 
-    token_is_invalid = not reset_token or reset_token.token != user_data.token
+    if not reset_token:
+        raise InvalidTokenError("Invalid email or token.")
 
     if reset_token.token != user_data.token:
         await db.delete(reset_token)
         await db.commit()
 
-    if token_is_invalid:
         raise InvalidTokenError("Invalid email or token.")
 
     if not user.is_active:
