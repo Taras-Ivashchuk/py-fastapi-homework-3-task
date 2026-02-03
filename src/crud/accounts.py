@@ -12,7 +12,7 @@ from database.models.accounts import UserModel, UserGroupModel, ActivationTokenM
 from database.models.accounts import UserGroupEnum
 from exceptions import TokenExpiredError, InvalidTokenError
 
-from schemas import UserRegistrationRequestSchema, UserRegistrationResponseSchema, UserActivationRequestSchema, \
+from schemas import UserRegistrationRequestSchema, UserActivationRequestSchema, \
     PasswordResetRequestSchema, PasswordResetCompleteRequestSchema, UserLoginResponseSchema, UserLoginRequestSchema, \
     TokenRefreshRequestSchema, TokenRefreshResponseSchema
 from security.interfaces import JWTAuthManagerInterface
@@ -143,10 +143,11 @@ async def password_reset_complete(db: AsyncSession, user_data: PasswordResetComp
 
     token_is_invalid = not reset_token or reset_token.token != user_data.token
 
-    if token_is_invalid:
+    if reset_token.token != user_data.token:
         await db.delete(reset_token)
         await db.commit()
 
+    if token_is_invalid:
         raise InvalidTokenError("Invalid email or token.")
 
     if not user.is_active:
@@ -226,9 +227,6 @@ async def refresh_access_token(db: AsyncSession, token_data: TokenRefreshRequest
 
     if is_expired:
         raise TokenExpiredError("Refresh token is expired")
-
-    if refresh_token.user_id != decoded_token.get("user_id"):
-        raise InvalidTokenError("Invalid refresh password token or not found")
 
     user = await db.get(UserModel, decoded_token.get("user_id"))
     if user is None:

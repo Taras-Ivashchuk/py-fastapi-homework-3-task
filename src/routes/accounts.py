@@ -117,7 +117,7 @@ async def login_the_user(
     except (UserDoesNotExist, InvalidPassword):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail= "Invalid email or password.",
+            detail="Invalid email or password.",
         )
 
     except (IntegrityError, SQLAlchemyError):
@@ -137,7 +137,7 @@ async def access_token_refresh(
 ):
     try:
         return await refresh_access_token(db=db, token_data=token, jwt=jwt_dep)
-    except (UserDoesNotExist, InvalidPassword):
+    except UserDoesNotExist:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found.",

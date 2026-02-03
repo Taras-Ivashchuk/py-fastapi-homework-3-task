@@ -35,17 +35,11 @@ class MessageResponseSchema(BaseModel):
     message: str
 
 
-class PasswordResetRequestSchema(BaseModel):
-    email: EmailStr
-
-    @field_validator("email")
-    @classmethod
-    def validate_email(cls, value):
-        return accounts_validators.validate_email(value.lower())
+class PasswordResetRequestSchema(UserBaseSchema):
+    pass
 
 
-class PasswordResetCompleteRequestSchema(BaseModel):
-    email: EmailStr
+class PasswordResetCompleteRequestSchema(UserBaseSchema):
     token: str
     password: str
 
@@ -54,25 +48,14 @@ class PasswordResetCompleteRequestSchema(BaseModel):
     def validate_password(cls, value):
         return accounts_validators.validate_password_strength(value)
 
-    @field_validator("email")
-    @classmethod
-    def validate_email(cls, value):
-        return accounts_validators.validate_email(value.lower())
 
-
-class UserLoginRequestSchema(BaseModel):
-    email: EmailStr
+class UserLoginRequestSchema(UserBaseSchema):
     password: str
 
     @field_validator("password")
     @classmethod
     def validate_password(cls, value):
         return accounts_validators.validate_password_strength(value)
-
-    @field_validator("email")
-    @classmethod
-    def validate_email(cls, value):
-        return accounts_validators.validate_email(value.lower())
 
 
 class UserLoginResponseSchema(BaseModel):
